@@ -25,7 +25,9 @@ public class ProjectController {
     @Autowired
     private MapValidationErrorService mapValidationErrorService;
 
-    @PostMapping("")
+                        // BindingResult: interface, invoke validator on object
+                        // <?>: generic type
+    @PostMapping("")    //@Valid: give descriptive response(json) if request body is invalid
     public ResponseEntity<?> createNewProject(@Valid @RequestBody Project project, BindingResult result){
 
         ResponseEntity<?> errorMap = mapValidationErrorService.MapValidationService(result);
