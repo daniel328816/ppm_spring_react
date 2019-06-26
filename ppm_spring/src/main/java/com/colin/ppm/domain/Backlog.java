@@ -1,9 +1,8 @@
 package com.colin.ppm.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
 
 @Entity
 public class Backlog {
@@ -15,6 +14,14 @@ public class Backlog {
 
     public Backlog() {
     }
+
+    // OneToOne with project
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="project_id", nullable = false)
+    @JsonIgnore // break infinite recursion problem
+    private Project project;
+
+    // OneToMany project tasks
 
     public Long getId() {
         return id;
@@ -39,10 +46,12 @@ public class Backlog {
     public void setProjectIdentifier(String projectIdentifier) {
         this.projectIdentifier = projectIdentifier;
     }
-    // OneToOne with project
 
-    // OneToMany project tasks
+    public Project getProject() {
+        return project;
+    }
 
-
-
+    public void setProject(Project project) {
+        this.project = project;
+    }
 }
