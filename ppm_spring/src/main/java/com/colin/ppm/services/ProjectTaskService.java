@@ -26,11 +26,14 @@ public class ProjectTaskService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public ProjectTask addProjectTask(String projectIdentifier, ProjectTask projectTask){
-       try{
+    @Autowired
+    private ProjectService projectService;
+
+    public ProjectTask addProjectTask(String projectIdentifier, ProjectTask projectTask, String username){
+
 
            //Project Tasks to be added to a specific project, project !=null, backlog exists
-           Backlog backlog = backlogRepository.findByProjectIdentifier(projectIdentifier);
+           Backlog backlog = projectService.findProjectByIdentifier(projectIdentifier ,username).getBacklog();
            //Set the backlog to project task
            projectTask.setBacklog(backlog);
            //we want our project sequence to be like this: IDPRO-1 IDPRO-2 ... 100 101
@@ -49,22 +52,19 @@ public class ProjectTaskService {
                projectTask.setStatus("TO_DO");
            }
 
-           if(projectTask.getPriority() == 0 ||projectTask.getPriority() == null){ // In the future we need projectTask.getPriority() == 0 to handle the form
+           //Fix bug with priority in Spring Boot Server, needs to check null first
+           if(projectTask.getPriority() == null || projectTask.getPriority() == 0 ){ // In the future we need projectTask.getPriority() == 0 to handle the form
                projectTask.setPriority(3);
            }
            return projectTaskRepository.save(projectTask);
 
-       } catch (Exception e){
-            throw new ProjectNotFoundException("Project not found");
-       }
+
     }
 
-    public Iterable<ProjectTask> findBacklogById(String id){
+    public Iterable<ProjectTask> findBacklogById(String id, String username){
 
-        Project project = projectRepository.findByProjectIdentifier(id);
-        if(project==null){
-            throw new ProjectNotFoundException("Project with ID: '"+ id+"' does not exist");
-        }
+        projectService.findProjectByIdentifier(id, username);
+
         return projectTaskRepository.findByProjectIdentifierOrderByPriority(id);
     }
 
